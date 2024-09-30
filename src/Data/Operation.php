@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -36,7 +37,7 @@ class Operation extends Data
 
         if (is_string($uses)) {
             $controller_class = new ReflectionClass($route->getController());
-            $controller_function = $controller_class->getMethod($route->getActionMethod());
+            $controller_function = $controller_class->getMethod(Str::parseCallback($route->action['uses'])[1]);
 
             echo $controller_class->name, "::", $controller_function->name, "\n";
         } elseif ($uses instanceof Closure) {
