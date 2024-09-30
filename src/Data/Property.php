@@ -7,7 +7,7 @@ use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Data as LaravelData;
+use Spatie\LaravelData\Support\Types\Storage\AcceptedTypesStorage;
 
 class Property extends Data
 {
@@ -27,7 +27,8 @@ class Property extends Data
      */
     public static function fromDataClass(string $class): Collection
     {
-        if (! is_a($class, LaravelData::class, true)) {
+        ['kind' => $kind] = AcceptedTypesStorage::getAcceptedTypesAndKind($class);
+        if ($kind->isNonDataRelated()) {
             throw new RuntimeException('Class does not extend LaravelData');
         }
 

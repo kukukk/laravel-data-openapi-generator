@@ -24,6 +24,7 @@ use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Support\Factories\DataPropertyFactory;
 use Spatie\LaravelData\Support\Transformation\TransformationContext;
 use Spatie\LaravelData\Support\Transformation\TransformationContextFactory;
+use Spatie\LaravelData\Support\Types\Storage\AcceptedTypesStorage;
 use UnitEnum;
 use Xolvio\OpenApiGenerator\Attributes\CustomContentType;
 use Xolvio\OpenApiGenerator\Attributes\HttpResponseStatus;
@@ -236,7 +237,8 @@ class Schema extends Data
     {
         $type_name = ltrim($type_name, '\\');
 
-        if (! is_a($type_name, LaravelData::class, true)) {
+        ['kind' => $kind] = AcceptedTypesStorage::getAcceptedTypesAndKind($type_name);
+        if ($kind->isNonDataRelated()) {
             throw new RuntimeException("Type {$type_name} is not a Data class");
         }
 
@@ -259,7 +261,8 @@ class Schema extends Data
     {
         $type_name = ltrim($type_name, '\\');
 
-        if (! is_a($type_name, LaravelData::class, true)) {
+        ['kind' => $kind] = AcceptedTypesStorage::getAcceptedTypesAndKind($type_name);
+        if ($kind->isNonDataRelated()) {
             throw new RuntimeException("Type {$type_name} is not a Data class");
         }
 
