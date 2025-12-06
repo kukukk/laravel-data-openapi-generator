@@ -19,6 +19,10 @@ class OpenApiServiceProvider extends ServiceProvider
             ]);
         }
 
+        if (! config('openapi-generator.enabled')) {
+            return;
+        }
+
         $this->loadRoutesFrom(__DIR__ . '/routes/routes.php');
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'openapi-generator');
     }
