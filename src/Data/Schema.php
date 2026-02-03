@@ -300,6 +300,29 @@ class Schema extends Data
         }
 
         $class = $tag_type->getValueType()->__toString();
+        if (! class_exists($class) && str_starts_with($class, '\\')) {
+            if ($reflection instanceof ReflectionProperty || $reflection instanceof ReflectionMethod) {
+                $declaringClass = $reflection->getDeclaringClass();
+            } else {
+                throw new RuntimeException('Cannot resolve class from function reflection');
+            }
+
+            $fileName = $declaringClass->getFileName();
+            if ($fileName) {
+                $fileContents = file_get_contents($fileName);
+                $className = ltrim($class, '\\');
+
+                // Match use statements
+                preg_match_all('/use\s+([^;]+);/i', $fileContents, $matches);
+                foreach ($matches[1] as $useStatement) {
+                    $useStatement = trim($useStatement);
+                    if (str_ends_with($useStatement, '\\' . $className) || $useStatement === $className) {
+                        $class = '\\' . ltrim($useStatement, '\\');
+                        break;
+                    }
+                }
+            }
+        }
 
         return new self(
             type: 'array',
