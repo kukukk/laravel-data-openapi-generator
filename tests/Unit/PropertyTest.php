@@ -4,6 +4,7 @@ use Xolvio\OpenApiGenerator\Data\Property;
 use Xolvio\OpenApiGenerator\Test\ContentTypeData;
 use Xolvio\OpenApiGenerator\Test\NotData;
 use Xolvio\OpenApiGenerator\Test\RequestData;
+use Xolvio\OpenApiGenerator\Test\RequestDataWithHiddenField;
 use Xolvio\OpenApiGenerator\Test\ReturnData;
 
 it('cannot create property from non data class', function () {
@@ -97,4 +98,11 @@ it('can create property from reflection', function () {
                 ->toBe($reflection_property->getName());
         }
     }
+});
+
+it('excludes properties marked with #[Hidden] from data class', function () {
+    $properties = Property::fromDataClass(RequestDataWithHiddenField::class);
+
+    expect($properties)->toHaveCount(1);
+    expect($properties->first()->getName())->toBe('visible_field');
 });

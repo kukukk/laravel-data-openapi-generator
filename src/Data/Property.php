@@ -8,6 +8,7 @@ use ReflectionProperty;
 use RuntimeException;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Types\Storage\AcceptedTypesStorage;
+use Xolvio\OpenApiGenerator\Attributes\Hidden;
 
 class Property extends Data
 {
@@ -38,7 +39,10 @@ class Property extends Data
         return self::collect(
             array_map(
                 fn (ReflectionProperty $property) => self::fromProperty($property),
-                $properties
+                array_filter(
+                    $properties,
+                    fn (ReflectionProperty $property) => 0 === count($property->getAttributes(Hidden::class)),
+                )
             ),
             Collection::class
         );
