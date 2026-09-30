@@ -36,10 +36,13 @@ class Operation extends Data
         $uses = $route->action['uses'];
 
         if (is_string($uses)) {
-            $controller_class = new ReflectionClass($route->getController());
+            /** @var null|class-string $controller_class_name */
+            $controller_class_name = $route->getControllerClass();
+            if (null === $controller_class_name) {
+                throw new Exception('Cached closure routes are not supported');
+            }
+            $controller_class = new ReflectionClass($controller_class_name);
             $controller_function = $controller_class->getMethod(Str::parseCallback($route->action['uses'])[1]);
-
-            echo $controller_class->name, "::", $controller_function->name, "\n";
         } elseif ($uses instanceof Closure) {
             $controller_class = null;
             $controller_function = new ReflectionFunction($uses);
