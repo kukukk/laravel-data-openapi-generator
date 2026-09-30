@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,24 @@ it('documents routes whose controller cannot be built outside a request', functi
 
     expect($paths)->toHaveKey('/api/unresolvableDependency');
     expect($paths['/api/unresolvableDependency'])->toHaveKey('post');
+});
+
+it('succeeds in strict mode when every route is documented', function () {
+    expect(Artisan::call('openapi:generate', ['--strict' => true]))->toBe(Command::SUCCESS);
+});
+
+it('fails only in strict mode when a route is left out', function () {
+    $routes_without_undocumentable = clone Route::getRoutes();
+    Route::prefix('api')->get('/undocumentable', [Controller::class, 'arrayFail'])
+        ->name('undocumentable');
+
+    try {
+        expect(Artisan::call('openapi:generate'))->toBe(Command::SUCCESS);
+        expect(Artisan::call('openapi:generate', ['--strict' => true]))->toBe(Command::FAILURE);
+        expect(Artisan::output())->toContain('Left out 1 route(s): get /api/undocumentable');
+    } finally {
+        Route::setRoutes($routes_without_undocumentable);
+    }
 });
 
 afterAll(function () {

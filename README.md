@@ -77,6 +77,8 @@ const url = `${import.meta.env.VITE_APP_URL}/api/openapi`;
 
 `php artisan openapi:generate`
 
+Add `--strict` to exit with a failure code when a route can't be documented and is left out.
+
 ## View
 
 Swagger available at `APP_URL/api/openapi`

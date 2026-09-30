@@ -24,6 +24,8 @@ class OpenApi extends Data
         public Info $info,
         /** @var array<string,array<string,Operation>> */
         protected array $paths,
+        /** @var array<int,string> */
+        protected array $failed_routes = [],
     ) {}
 
     /**
@@ -61,6 +63,8 @@ class OpenApi extends Data
         /** @var array<string,array<string,Operation>> $paths */
         $paths = [];
 
+        $failed_routes = [];
+
         foreach ($routes as $uri => $uri_routes) {
             foreach ($uri_routes as $method => $route) {
                 try {
@@ -72,6 +76,8 @@ class OpenApi extends Data
                 } catch (Throwable $th) {
                     $command->error("Failed to generate Operation from route {$method} {$route->getName()} {$uri}: {$th->getMessage()}");
 
+                    $failed_routes[] = "{$method} {$uri}";
+
                     Log::error($th);
                 }
             }
@@ -81,7 +87,14 @@ class OpenApi extends Data
             openapi: config('openapi-generator.openapi'),
             info: Info::create(),
             paths: $paths,
+            failed_routes: $failed_routes,
         );
+    }
+
+    /** @return array<int,string> */
+    public function getFailedRoutes(): array
+    {
+        return $this->failed_routes;
     }
 
     /**

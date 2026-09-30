@@ -10,7 +10,7 @@ use Xolvio\OpenApiGenerator\Data\OpenApi;
 
 class GenerateOpenApiCommand extends Command
 {
-    protected $signature   = 'openapi:generate';
+    protected $signature   = 'openapi:generate {--strict : Exit with a failure code when a route is left out}';
     protected $description = 'Generates the OpenAPI documentation';
 
     public function handle(): int
@@ -33,6 +33,13 @@ class GenerateOpenApiCommand extends Command
         );
 
         $this->info("OpenAPI documentation generated at {$location}");
+
+        $failed_routes = $openapi->getFailedRoutes();
+        if ($this->option('strict') && count($failed_routes) > 0) {
+            $this->error('Left out ' . count($failed_routes) . ' route(s): ' . implode(', ', $failed_routes));
+
+            return Command::FAILURE;
+        }
 
         return Command::SUCCESS;
     }
