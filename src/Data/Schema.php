@@ -47,7 +47,7 @@ class Schema extends Data
         protected ?Collection $properties = null,
         public ?array $enum = null,
     ) {
-        $this->type     = self::CASTS[$this->type] ?? $this->type;
+        $this->type     = null === $this->type ? null : (self::CASTS[$this->type] ?? $this->type);
         $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
